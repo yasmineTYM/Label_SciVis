@@ -6,8 +6,14 @@
              <el-table
               :data="tableData"
               style="width: 100%"
+              :highlight-current-row="true"
                @current-change="handleCurrentChange"
               max-height=500>
+               <el-table-column
+                prop="index"
+                label="index"
+                width="100">
+              </el-table-column>
               <el-table-column
                 prop="Year"
                 label="Year"
@@ -19,14 +25,10 @@
                 label="Title">
               </el-table-column>
               <el-table-column
-                prop="LabelKeyword"
+                prop="AuthorNames"
                 label="AuthorNames">
               </el-table-column>
-              <el-table-column
-                prop="Tag"
-                label="Tag"
-                width="100">
-              </el-table-column>
+             
             </el-table>
           </div>
         </el-col>
@@ -78,6 +80,7 @@ export default {
     return{
       tableData:[],
       currentRow:null,
+      oldRow:null,
       wordList:null,
       keyword:[]
     }
@@ -90,19 +93,19 @@ export default {
       this.keyword = []
     },
     saveKeyword(){
+      console.log('save',this.oldRow['LabelKeyword']);
       const path = "http://localhost:5000/addKeyword"
       const payload={
-        'DOI':this.currentRow['DOI'],
+        'DOI':this.oldRow['DOI'],
         'keyword':this.keyword
       }
       axios.post(path, payload)
       .then((res)=>{
-        console.log(res.data)
         this.$message({
           message: 'Good job!',
           type: 'success'
         });
-        this.getTableData()
+        // this.getTableData()
       })
       .catch((error)=>{
         console.log(error)
@@ -112,7 +115,6 @@ export default {
        this.keyword.splice(this.keyword.indexOf(word), 1);
     },
     clickWord(val){
-      console.log(val)
       this.keyword.push(val);
     },
     getTableData(){
@@ -125,9 +127,33 @@ export default {
         console.log(error)
       })
     },
-    handleCurrentChange(val) {
-      this.currentRow = val;
-      console.log(val)
+    getKeyword(){
+      console.log('get keyword', this.currentRow['LabelKeyword'])
+      const path = "http://localhost:5000/getKeyword"
+      const payload = {
+        'DOI': this.currentRow['DOI']
+      }
+      axios.post(path, payload)
+      .then((res)=>{
+        console.log(res.data)
+        this.keyword = res.data.keyword
+        // this.tableData = res.data.tableData
+      })
+      .catch((error)=>{
+        console.log(error)
+      })
+    },
+    handleCurrentChange(val,old) {
+      if(old===null){
+        this.oldRow = val
+        this.currentRow = val
+      }else{
+        this.currentRow = val;
+        this.oldRow = old;
+      }
+      //save data
+      this.saveKeyword()
+      this.getKeyword()
     },
     changeAbstract(){
        var temp_list = this.currentRow['Abstract'].split(' ')

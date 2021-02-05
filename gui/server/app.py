@@ -1,6 +1,7 @@
 from flask import Flask, jsonify,request
 from flask_cors import CORS
 import pandas as pd 
+import ast
 import numpy as np
 # configuration
 DEBUG = True
@@ -37,23 +38,29 @@ def addKeyword():
     keyword = data['keyword']
 
     data = pd.read_csv('../frontend/public/vispub.csv')
-    print(doi, keyword)
     new_label = []
-    new_tag = []
     for index, row in data.iterrows():
         if row['DOI']==doi:
             new_label.append(keyword)
-            new_tag.append('done')
-        elif row['Tag']=="done":
-            new_label.append(row['LabelKeyword'])
-            new_tag.append('done')
         else:
-            new_label.append('')
-            new_tag.append('todo')
-    new_df = pd.DataFrame({'LabelKeyword': new_label, 'Tag':new_tag})
+            new_label.append(row['LabelKeyword'])
+    new_df = pd.DataFrame({'LabelKeyword': new_label})
     data.update(new_df)
     data.to_csv('../frontend/public/vispub.csv',index=False)
 
     return jsonify('success')
+@app.route('/getKeyword', methods=['POST'])
+def getKeyword():
+    paramter = request.get_json()
+    data = pd.read_csv('../frontend/public/vispub.csv')
+    data = data.replace(np.nan, '', regex=True)
+    doi = paramter['DOI']
+    for index, row in data.iterrows():
+        if row['DOI']==doi:
+            if row['LabelKeyword']=="":
+                return jsonify({'keyword':[]})
+            else:
+                return jsonify({'keyword':ast.literal_eval(row['LabelKeyword'])})
+
 if __name__ == '__main__':
     app.run()
