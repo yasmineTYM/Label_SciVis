@@ -47,7 +47,7 @@
               <el-button type="danger" plain @click="clearKeyword">Clear</el-button>
             <!-- </el-col> -->
              <!-- <el-col :span="3"> -->
-              <el-button  type="success" plain @click="saveKeyword">Save</el-button>
+              <el-button  type="success" plain @click="manuSaveKeyword">Save</el-button>
             <!-- </el-col> -->
             
           </el-row>
@@ -92,8 +92,26 @@ export default {
     clearKeyword(){
       this.keyword = []
     },
+    manuSaveKeyword(){
+      const path = "http://localhost:5000/addKeyword"
+      const payload={
+        'DOI':this.currentRow['DOI'],
+        'keyword':this.keyword
+      }
+      axios.post(path, payload)
+      .then((res)=>{
+        this.$message({
+          message: 'Good job!',
+          type: 'success'
+        });
+        // this.getTableData()
+      })
+      .catch((error)=>{
+        console.log(error)
+      })
+    },
     saveKeyword(){
-      console.log('save',this.oldRow['LabelKeyword']);
+      console.log('save',this.currentRow['LabelKeyword']);
       const path = "http://localhost:5000/addKeyword"
       const payload={
         'DOI':this.oldRow['DOI'],
