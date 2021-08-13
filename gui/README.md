@@ -3,41 +3,41 @@
 ```
 git pull https://github.com/yasmineTYM/Label_SciVis.git
 ```
-*
-2. set up the backend 
-* you can activate your own virtual environment, or open the environment in this system by:
+2. set up the backend. You can activate your own virtual environment, or open the environment in this system by:
 ```
 cd gui/
 source /env/bin/activate
 ```
-* install the required package in the virtual environment:
+install the required package in the virtual environment:
 ```
 pip install Flask==1.0.2 Flask-Cors==3.0.7
 ```
 
 3. set up the front end 
 ```
-* cd frontend/
-* rm -f node_modules
-* rm package-lock.json
-* npm cache clean --force
-* npm install 
+ cd frontend/
+ rm -f node_modules
+ rm package-lock.json
+ npm cache clean --force
+ npm install 
 ```
 
 ## How to run the interface?
-1. run backend 
-* open your own virtual environment or 
+1. open your own virtual environment or run
 ```
 cd gui/
 source /env/bin/activate
 ```
+2.run backend
+```
 * cd gui/server/
 * python app.py 
-
+```
 2. run frontend 
-* cd gui/frontend/
-* npm run dev 
-
+```
+ cd gui/frontend/
+ npm run dev 
+```
 
 ## the normal workflow using the git for code management
 1. before you trying to update, retrieve the most updated version from the git 
