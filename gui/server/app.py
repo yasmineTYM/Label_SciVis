@@ -22,6 +22,11 @@ def ping_pong():
 @app.route('/getGraphData', methods=['GET'])
 def getGraphData():
     data = pd.read_csv('../frontend/public/vispub.csv')
+    a  = []
+    b = []
+    for i in range(len(data)):
+        a.append('')
+        b.append('')
     #filter scivis and vis
     data = data.loc[data['Conference'].isin(['SciVis','Vis'])]
     # remove nan abstract 
@@ -37,21 +42,26 @@ def getGraphData():
 def addKeyword():
     data = request.get_json()
     doi = data['DOI']
-    keyword = data['keyword']
+    a = data['additional_keyword']
+    c = data['comment']
 
     data = pd.read_csv('../frontend/public/vispub.csv')
     
-    new_label = []
+    a_list = []
+    c_list = []
     for index, row in data.iterrows():
         if row['DOI']==doi:
-            new_label.append(keyword)
+            a_list.append(a)
+            c_list.append(c)
         else:
-            new_label.append(row['LabelKeyword'])
-    new_df = pd.DataFrame({'LabelKeyword': new_label})
+            a_list.append(row['AdditionalKeyword'])
+            c_list.append(row['Comment'])
+    new_df = pd.DataFrame({'AdditionalKeyword': a_list, 'Comment': c_list})
     data.update(new_df)
     data.to_csv('../frontend/public/vispub.csv',index=False)
-
     return jsonify('success')
+
+
 @app.route('/getKeyword', methods=['POST'])
 def getKeyword():
     paramter = request.get_json()
@@ -60,10 +70,10 @@ def getKeyword():
     doi = paramter['DOI']
     for index, row in data.iterrows():
         if row['DOI']==doi:
-            if row['LabelKeyword']=="":
-                return jsonify({'keyword':[]})
-            else:
-                return jsonify({'keyword':ast.literal_eval(row['LabelKeyword'])})
+            return jsonify({
+                'aKeyword': row['AdditionalKeyword'],
+                'comment': row['Comment']
+            })
 
 if __name__ == '__main__':
     app.run()

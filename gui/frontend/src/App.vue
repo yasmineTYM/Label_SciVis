@@ -7,7 +7,7 @@
               :data="tableData"
               style="width: 100%"
               :highlight-current-row="true"
-               @current-change="handleCurrentChange"
+               @current-change="nextRow"
               max-height=500>
                <el-table-column
                 prop="index"
@@ -35,7 +35,7 @@
          <el-col :span="14">
           <div style="height:500px; border:1px solid black; border-left:0px solid white; overflow-y: scroll;">
             <div id="div_abstract">
-              <el-button  v-for="item in wordList" :key="item.index" type="info" plain @click.native="clickWord(item.word)" size="small"  id="word_button">{{item.word}}</el-button>
+              <el-button  v-for="item in wordList" :key="item.index" type="info" plain size="small"  id="word_button">{{item.word}}</el-button>
             </div>
           </div>
          </el-col>
@@ -43,24 +43,23 @@
       <el-row>
         <div style="height:500px; border:1px solid black">
           <el-row>
-            <!-- <el-col :span="2"> -->
-              <el-button type="danger" plain @click="clearKeyword">Clear</el-button>
-            <!-- </el-col> -->
-             <!-- <el-col :span="3"> -->
-              <el-button  type="success" plain @click="manuSaveKeyword">Save</el-button>
-            <!-- </el-col> -->
-            
+            Additional Keywords:
+            <el-input
+              type="textarea"
+              :rows="2"
+              placeholder="please input"
+              v-model="aKeyword">
+            </el-input>
           </el-row>
-          <el-tag
-            v-for="tag in keyword"
-            :key="tag"
-            closable
-            size="large"
-            :disable-transitions="false"
-            @close="removeKeyword(tag)"
-            style="margin-left:5px; margin-bottom:5px">
-            {{tag}}
-          </el-tag>
+          <el-row>
+            Comments:
+            <el-input
+              type="textarea"
+              :rows="2"
+              placeholder="please input"
+              v-model="comment">
+            </el-input>
+          </el-row>
         </div>
       </el-row>
 
@@ -82,45 +81,26 @@ export default {
       currentRow:null,
       oldRow:null,
       wordList:null,
-      keyword:[]
+      keyword:[],
+      aKeyword:'',
+      comment:''
     }
   },
   created(){
     this.getTableData()
   },
   methods:{
-    clearKeyword(){
-      this.keyword = []
-    },
-    manuSaveKeyword(){
-      const path = "http://localhost:5000/addKeyword"
-      const payload={
-        'DOI':this.currentRow['DOI'],
-        'keyword':this.keyword
-      }
-      axios.post(path, payload)
-      .then((res)=>{
-        this.$message({
-          message: 'Good job!',
-          type: 'success'
-        });
-        // this.getTableData()
-      })
-      .catch((error)=>{
-        console.log(error)
-      })
-    },
     saveKeyword(){
-      console.log('save',this.currentRow['LabelKeyword']);
       const path = "http://localhost:5000/addKeyword"
       const payload={
         'DOI':this.oldRow['DOI'],
-        'keyword':this.keyword
+        'additional_keyword':this.aKeyword,
+        'comment': this.comment
       }
       axios.post(path, payload)
       .then((res)=>{
         this.$message({
-          message: 'Good job!',
+          message: 'last row saved!',
           type: 'success'
         });
         // this.getTableData()
@@ -128,12 +108,6 @@ export default {
       .catch((error)=>{
         console.log(error)
       })
-    },
-    removeKeyword(word){
-       this.keyword.splice(this.keyword.indexOf(word), 1);
-    },
-    clickWord(val){
-      this.keyword.push(val);
     },
     getTableData(){
       const path = "http://localhost:5000/getGraphData"
@@ -146,22 +120,21 @@ export default {
       })
     },
     getKeyword(){
-      console.log('get keyword', this.currentRow['LabelKeyword'])
       const path = "http://localhost:5000/getKeyword"
       const payload = {
         'DOI': this.currentRow['DOI']
       }
       axios.post(path, payload)
       .then((res)=>{
-        console.log(res.data)
-        this.keyword = res.data.keyword
-        // this.tableData = res.data.tableData
+        this.aKeyword = res.data.aKeyword
+        this.comment = res.data.comment
+        
       })
       .catch((error)=>{
         console.log(error)
       })
     },
-    handleCurrentChange(val,old) {
+    nextRow(val,old) {
       if(old===null){
         this.oldRow = val
         this.currentRow = val
@@ -174,7 +147,6 @@ export default {
       this.getKeyword()
     },
     changeAbstract(){
-      console.log(this.currentRow['Abstract'])
        var temp_list = this.currentRow['Abstract'].split(' ')
        var hasIndex = []
        for(let i=0; i<temp_list.length;i++){
