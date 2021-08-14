@@ -174,6 +174,7 @@ export default {
       this.getKeyword()
     },
     changeAbstract(){
+      console.log(this.currentRow['Abstract'])
        var temp_list = this.currentRow['Abstract'].split(' ')
        var hasIndex = []
        for(let i=0; i<temp_list.length;i++){

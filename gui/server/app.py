@@ -22,8 +22,10 @@ def ping_pong():
 @app.route('/getGraphData', methods=['GET'])
 def getGraphData():
     data = pd.read_csv('../frontend/public/vispub.csv')
-    #filter scivis 
-    data = data.loc[data['Conference'].isin(['SciVis'])]
+    #filter scivis and vis
+    data = data.loc[data['Conference'].isin(['SciVis','Vis'])]
+    # remove nan abstract 
+    data = data.dropna(subset=['Abstract'])
     #remove nan
     data = data.replace(np.nan, '', regex=True)
     output_data = data.to_dict('records')
@@ -38,6 +40,7 @@ def addKeyword():
     keyword = data['keyword']
 
     data = pd.read_csv('../frontend/public/vispub.csv')
+    
     new_label = []
     for index, row in data.iterrows():
         if row['DOI']==doi:
