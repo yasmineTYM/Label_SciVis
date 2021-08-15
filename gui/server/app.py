@@ -32,7 +32,7 @@ def getGraphData():
     # data['Comment'] = b
     # data.to_csv('../frontend/public/vispub.csv',index=False)
     #filter scivis and vis
-    data = data.loc[data['Conference'].isin(['SciVis'])]
+    data = data.loc[data['Conference'].isin(['SciVis','Vis'])]
     # remove nan abstract 
     data = data.dropna(subset=['Abstract'])
     #remove nan
