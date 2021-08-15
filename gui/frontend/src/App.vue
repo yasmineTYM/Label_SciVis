@@ -155,7 +155,7 @@ export default {
       axios.post(path, payload)
       .then((res)=>{
         this.$message({
-          message: 'last row saved!',
+          message: 'file saved!',
           type: 'success'
         });
         // this.getTableData()

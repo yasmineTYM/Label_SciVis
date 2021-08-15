@@ -78,11 +78,19 @@ def getKeyword():
     doi = paramter['DOI']
     for index, row in data.iterrows():
         if row['DOI']==doi:
-            return jsonify({
-                'aKeyword': row['AdditionalKeyword'],
-                'comment': row['Comment'],
-                'keyword':ast.literal_eval(row['LabelKeyword'])
-            })
+            if row['LabelKeyword']=="":
+                return jsonify({
+                    'aKeyword': row['AdditionalKeyword'],
+                    'comment': row['Comment'],
+                    'keyword':[]
+                })
+            else:
+                
+                return jsonify({
+                    'aKeyword': row['AdditionalKeyword'],
+                    'comment': row['Comment'],
+                    'keyword':ast.literal_eval(row['LabelKeyword'])
+                })
 
 if __name__ == '__main__':
     app.run()
