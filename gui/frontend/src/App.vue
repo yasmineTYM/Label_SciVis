@@ -35,7 +35,7 @@
          <el-col :span="14">
           <div style="height:500px; border:1px solid black; border-left:0px solid white; overflow-y: scroll;">
             <div id="div_abstract">
-              <el-button  v-for="item in wordList" :key="item.index" type="info" plain size="small"  id="word_button">{{item.word}}</el-button>
+              <el-button  v-for="item in wordList" :key="item.index" type="info" plain @click.native="clickWord(item.word)"  size="small"  id="word_button">{{item.word}}</el-button>
             </div>
           </div>
          </el-col>
@@ -43,22 +43,49 @@
       <el-row>
         <div style="height:500px; border:1px solid black">
           <el-row>
-            Additional Keywords:
-            <el-input
+              <el-button type="danger" plain @click="clearKeyword">Clear</el-button>
+              <el-button  type="success" plain @click="saveKeyword">Save</el-button>
+          </el-row>
+          <el-row>
+            <el-tag
+              v-for="tag in keyword"
+              :key="tag"
+              closable
+              size="large"
+              :disable-transitions="false"
+              @close="removeKeyword(tag)"
+              style="margin-left:5px; margin-bottom:5px">
+              {{tag}}
+            </el-tag>
+          </el-row>
+           
+
+          <el-row>
+            <el-col :span="6">
+              Additional Keywords:
+            </el-col>
+            <el-col :span="18">
+              <el-input
               type="textarea"
               :rows="2"
               placeholder="please input"
               v-model="aKeyword">
             </el-input>
+            </el-col>
           </el-row>
+
           <el-row>
-            Comments:
-            <el-input
+            <el-col :span="6">
+              Comments:
+            </el-col>
+            <el-col :span="18">
+              <el-input
               type="textarea"
               :rows="2"
               placeholder="please input"
               v-model="comment">
-            </el-input>
+              </el-input>
+            </el-col>
           </el-row>
         </div>
       </el-row>
@@ -90,12 +117,40 @@ export default {
     this.getTableData()
   },
   methods:{
+    clearKeyword(){
+      this.keyword = []
+    },
+    // manuSaveKeyword(){
+    //   const path = "http://localhost:5000/addKeyword"
+    //   const payload={
+    //     'DOI':this.currentRow['DOI'],
+    //     'keyword':this.keyword
+    //   }
+    //   axios.post(path, payload)
+    //   .then((res)=>{
+    //     this.$message({
+    //       message: 'Good job!',
+    //       type: 'success'
+    //     });
+    //     // this.getTableData()
+    //   })
+    //   .catch((error)=>{
+    //     console.log(error)
+    //   })
+    // },
+    removeKeyword(word){
+       this.keyword.splice(this.keyword.indexOf(word), 1);
+    },
+    clickWord(val){
+      this.keyword.push(val);
+    },
     saveKeyword(){
       const path = "http://localhost:5000/addKeyword"
       const payload={
         'DOI':this.oldRow['DOI'],
         'additional_keyword':this.aKeyword,
-        'comment': this.comment
+        'comment': this.comment,
+        'keyword': this.keyword
       }
       axios.post(path, payload)
       .then((res)=>{
@@ -128,6 +183,7 @@ export default {
       .then((res)=>{
         this.aKeyword = res.data.aKeyword
         this.comment = res.data.comment
+        this.keyword = res.data.keyword
         
       })
       .catch((error)=>{

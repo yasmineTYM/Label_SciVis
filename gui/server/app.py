@@ -22,13 +22,17 @@ def ping_pong():
 @app.route('/getGraphData', methods=['GET'])
 def getGraphData():
     data = pd.read_csv('../frontend/public/vispub.csv')
-    a  = []
-    b = []
-    for i in range(len(data)):
-        a.append('')
-        b.append('')
+    # a  = []
+    # b = []
+    # data = data.drop(['additional_keyword', 'comment'], axis=1)
+    # for i in range(len(data)):
+    #     a.append('')
+    #     b.append('')
+    # data['AdditionalKeyword'] = a
+    # data['Comment'] = b
+    # data.to_csv('../frontend/public/vispub.csv',index=False)
     #filter scivis and vis
-    data = data.loc[data['Conference'].isin(['SciVis','Vis'])]
+    data = data.loc[data['Conference'].isin(['SciVis'])]
     # remove nan abstract 
     data = data.dropna(subset=['Abstract'])
     #remove nan
@@ -44,19 +48,23 @@ def addKeyword():
     doi = data['DOI']
     a = data['additional_keyword']
     c = data['comment']
-
+    keyword = data['keyword']
     data = pd.read_csv('../frontend/public/vispub.csv')
     
     a_list = []
     c_list = []
+    new_label = []
+
     for index, row in data.iterrows():
         if row['DOI']==doi:
             a_list.append(a)
             c_list.append(c)
+            new_label.append(keyword)
         else:
             a_list.append(row['AdditionalKeyword'])
             c_list.append(row['Comment'])
-    new_df = pd.DataFrame({'AdditionalKeyword': a_list, 'Comment': c_list})
+            new_label.append(row['LabelKeyword'])
+    new_df = pd.DataFrame({'AdditionalKeyword': a_list, 'Comment': c_list,'LabelKeyword': new_label})
     data.update(new_df)
     data.to_csv('../frontend/public/vispub.csv',index=False)
     return jsonify('success')
@@ -72,7 +80,8 @@ def getKeyword():
         if row['DOI']==doi:
             return jsonify({
                 'aKeyword': row['AdditionalKeyword'],
-                'comment': row['Comment']
+                'comment': row['Comment'],
+                'keyword':ast.literal_eval(row['LabelKeyword'])
             })
 
 if __name__ == '__main__':
